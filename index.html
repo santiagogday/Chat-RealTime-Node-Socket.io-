@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+</head>
+<body>
+    <div class="contenedor_principal">
+        <h3>CHAT</h3>
+        <div class="contenedor_mensajes"></div>
+        <form class="form">
+            <input type="text" class="texto">
+            <button class="enviar">Enviar</button>
+        </form>
+    </div>
+    <script>
+        const texto = document.querySelector('.texto');
+        const enviar = document.querySelector('.enviar');
+        const socket = io('http://localhost:3000')
+        const contenedor_mensajes = document.querySelector('.contenedor_mensajes');
+        const form = document.querySelector('.form');
+        const pedirNombre = () =>{
+            return prompt('Ingrese su nombre');
+        }
+
+        while(true){
+            var nombre = pedirNombre();
+            if (nombre != null){
+                break
+            }else{
+                alert('Debe ingresar un valor')
+            }
+        }
+
+        let num1enviar = Math.random()*1000;
+        let num2enviar = Math.random()*1000;
+        let num3enviar = Math.random()*1000;
+        const colorEnviar = `rgb(${num1enviar},${num2enviar},${num3enviar})`
+
+        form.addEventListener('submit',(e)=>{
+            e.preventDefault()
+            socket.emit('mensaje',`${nombre}: ${texto.value}`);
+            texto.value = '';
+        })
+
+        socket.on('mensaje-global',(arg)=>{
+            let mensaje = document.createElement('p');
+            let valorTexto = `${nombre}`;
+            if(arg.includes(valorTexto)){
+                mensaje.style.color = colorEnviar;
+            }else{
+                let num1recibir = Math.random()*1000;
+                let num2recibir = Math.random()*1000;
+                let num3recibir = Math.random()*1000;
+                const colorRecibir = `rgb(${num1recibir},${num2recibir},${num3recibir})`
+                mensaje.style.color = colorRecibir
+            }
+            mensaje.textContent = arg;
+            contenedor_mensajes.appendChild(mensaje)
+        })
+
+    </script>
+    <style>
+        .contenedor_principal{
+            height: 500px;
+            width: 300px;
+            display: flex;
+            align-items: center;   
+            flex-direction: column;
+            background-color: rgb(44, 80, 44);
+        }
+
+        .contenedor_mensajes{
+            height: 480px;
+            overflow-y: scroll;
+        }
+
+        .mensajes{
+            color: white;
+        }
+
+        .form{
+            display: flex;
+        }
+
+        .texto{
+            width: 240px;
+        }
+    </style>
+</body>
+</html>
